@@ -21,10 +21,8 @@
     
     self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:nil];
     self.slider.maximumValue = self.audioPlayer.duration;
-    self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateSlider) userInfo:nil repeats:YES];
+    self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
     
-    [self.audioPlayer prepareToPlay];
-    [self updateSlider];
     [self updateAudioLengthLabel];
     [self updateElapsedTimeLabel];
 }
@@ -34,28 +32,40 @@
     [self.audioPlayer setCurrentTime:self.slider.value];
     [self.audioPlayer prepareToPlay];
     [self.audioPlayer play];
-    [self updateAudioLengthLabel];
     [self updateElapsedTimeLabel];
+    [self updatePlayButtonImage];
 }
 
 - (IBAction)pauseButtonTapped:(UIButton *)sender {
     if (self.audioPlayer.isPlaying) {
         [self.audioPlayer pause];
-        [self.pauseButton setImage:[UIImage systemImageNamed:@"play.fill"] forState:UIControlStateNormal];
         [self.sliderTimer invalidate];
         self.sliderTimer = nil;
     } else {
+        [self.audioPlayer prepareToPlay];
         [self.audioPlayer play];
-        [self.pauseButton setImage:[UIImage systemImageNamed:@"pause.fill"] forState:UIControlStateNormal];
-        self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateSlider) userInfo:nil repeats:YES];
+        self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
     }
-    [self updateAudioLengthLabel];
     [self updateElapsedTimeLabel];
+    [self updatePlayButtonImage];
 }
 
-- (void)updateSlider {
-    [self.slider setValue:self.audioPlayer.currentTime animated:YES];
+- (void)updatePlayButtonImage {
+    if (self.audioPlayer.isPlaying) {
+        [self.pauseButton setImage:[UIImage systemImageNamed:@"pause.fill"] forState:UIControlStateNormal];
+    } else {
+        [self.pauseButton setImage:[UIImage systemImageNamed:@"play.fill"] forState:UIControlStateNormal];
+    }
+}
+
+- (void)updateProgress {
     [self updateElapsedTimeLabel];
+    [self updatePlayButtonImage];
+    
+    if (!self.audioPlayer.isPlaying) {
+        [self.sliderTimer invalidate];
+        self.sliderTimer = nil;
+    }
 }
 
 - (void)updateAudioLengthLabel {
@@ -72,6 +82,7 @@
     NSInteger seconds = elapsedTime % 60;
     
     self.elapsedTimeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", (long)minutes, (long)seconds];
+    [self.slider setValue:self.audioPlayer.currentTime animated:YES];
 }
 
 @end
