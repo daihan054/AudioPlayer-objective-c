@@ -15,6 +15,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *pauseButton;
 @property (weak, nonatomic) IBOutlet UILabel *audioLengthLabel;
 @property (weak, nonatomic) IBOutlet UILabel *elapsedTimeLabel;
+@property (strong, nonatomic) NSTimer *sliderTimer;
 
 - (IBAction)sliderValueChanged:(UISlider *)sender;
 - (IBAction)pauseButtonTapped:(UIButton *)sender;

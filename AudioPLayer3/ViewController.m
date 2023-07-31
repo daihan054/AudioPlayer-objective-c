@@ -21,6 +21,7 @@
     
     self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:nil];
     self.slider.maximumValue = self.audioPlayer.duration;
+    self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateSlider) userInfo:nil repeats:YES];
     
     [self.audioPlayer prepareToPlay];
     [self updateSlider];
@@ -41,20 +42,19 @@
     if (self.audioPlayer.isPlaying) {
         [self.audioPlayer pause];
         [self.pauseButton setImage:[UIImage systemImageNamed:@"play.fill"] forState:UIControlStateNormal];
+        [self.sliderTimer invalidate];
+        self.sliderTimer = nil;
     } else {
         [self.audioPlayer play];
         [self.pauseButton setImage:[UIImage systemImageNamed:@"pause.fill"] forState:UIControlStateNormal];
+        self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateSlider) userInfo:nil repeats:YES];
     }
     [self updateAudioLengthLabel];
     [self updateElapsedTimeLabel];
 }
 
 - (void)updateSlider {
-    if (self.audioPlayer.isPlaying) {
-        [self.slider setValue:self.audioPlayer.currentTime animated:YES];
-    }
-    
-    [self performSelector:@selector(updateSlider) withObject:nil afterDelay:1.0];
+    [self.slider setValue:self.audioPlayer.currentTime animated:YES];
     [self updateElapsedTimeLabel];
 }
 
