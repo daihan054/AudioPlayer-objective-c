@@ -11,7 +11,7 @@
 @interface ViewController : UIViewController
 
 @property (strong, nonatomic) AVAudioPlayer *audioPlayer;
-@property (weak, nonatomic) IBOutlet UISlider *slider;
+@property (weak, nonatomic) IBOutlet UISlider *audioProgressSlider;
 @property (weak, nonatomic) IBOutlet UIButton *pauseButton;
 @property (weak, nonatomic) IBOutlet UILabel *audioLengthLabel;
 @property (weak, nonatomic) IBOutlet UILabel *elapsedTimeLabel;

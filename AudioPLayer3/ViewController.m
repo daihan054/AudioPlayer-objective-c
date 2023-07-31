@@ -20,7 +20,7 @@
     NSURL *url = [NSURL fileURLWithPath:path];
     
     self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:nil];
-    self.slider.maximumValue = self.audioPlayer.duration;
+    self.audioProgressSlider.maximumValue = self.audioPlayer.duration;
     self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
     
     [self updateAudioLengthLabel];
@@ -29,7 +29,7 @@
 
 - (IBAction)sliderValueChanged:(UISlider *)sender {
     [self.audioPlayer stop];
-    [self.audioPlayer setCurrentTime:self.slider.value];
+    [self.audioPlayer setCurrentTime:self.audioProgressSlider.value];
     [self.audioPlayer prepareToPlay];
     [self.audioPlayer play];
     [self updateElapsedTimeLabel];
@@ -42,12 +42,21 @@
         [self.sliderTimer invalidate];
         self.sliderTimer = nil;
     } else {
-        [self.audioPlayer prepareToPlay];
-        [self.audioPlayer play];
+        [self playAudio];
         self.sliderTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
     }
     [self updateElapsedTimeLabel];
     [self updatePlayButtonImage];
+}
+
+-(void) playAudio {
+    NSError *setCategoryError = nil;
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&setCategoryError];
+    if (setCategoryError) {
+        NSLog(@"Error setting category: %@", [setCategoryError localizedDescription]);
+    }
+    [self.audioPlayer prepareToPlay];
+    [self.audioPlayer play];
 }
 
 - (void)updatePlayButtonImage {
@@ -82,7 +91,7 @@
     NSInteger seconds = elapsedTime % 60;
     
     self.elapsedTimeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", (long)minutes, (long)seconds];
-    [self.slider setValue:self.audioPlayer.currentTime animated:YES];
+    [self.audioProgressSlider setValue:self.audioPlayer.currentTime animated:YES];
 }
 
 @end
